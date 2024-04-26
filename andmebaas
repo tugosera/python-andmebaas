@@ -1,0 +1,131 @@
+from os import *
+from sqlite3 import *
+from sqlite3 import Error
+
+def createConnection(path:str):
+    connection = None
+    try:
+        connection = connect(path)
+        print("Ühendus on olemas!")
+    except Error as e:
+        print(f"Tekkis viga: {e}")
+    return connection 
+
+def executeQuery(connection, query):
+    try:
+        cursor = connection.cursor()
+        cursor.execute(query)
+        connection.commit()
+        print("Tabel on loodud.")
+    except Error as e:
+        print(f"Tekkis viga: {e}")
+
+def readQuery(connection, query):
+    cursor = connection.cursor()
+    result = None
+    try:
+        cursor.execute(query)
+        result = cursor.fetchall()
+        return result
+    except Error as e:
+        print(f"Tekkis viga: {e}")
+
+def execute_insert_query(connection,data):
+    query="INSERT INTO users(Name,LastName,born,GenderId) VALUES(?,?,?,?)"
+    cursor=connection.cursor()
+    cursor.execute(query,data)
+    connection.commit()
+
+def dropTable(connection, table):
+    try:
+        cursor = connection.cursor()
+        cursor.execute(f"DROP TABLE IF EXIST {table}")
+        connection.commit()
+        print("Tabel on kustutatud.")
+    except Error as e:
+        print(f"Tekkis viga: {e}")
+from os import path
+from sqlite3 import connect, Error
+
+def createConnection(path: str):
+    connection = None
+    try:
+        connection = connect(path)
+        print("Ühendus on olemas!")
+    except Error as e:
+        print(f"Tekkis viga: {e}")
+    return connection
+
+def executeQuery(connection, query):
+    try:
+        cursor = connection.cursor()
+        cursor.execute(query)
+        connection.commit()
+        print("Tabel on loodud.")
+    except Error as e:
+        print(f"Tekkis viga: {e}")
+
+def readQuery(connection, query):
+    cursor = connection.cursor()
+    result = None
+    try:
+        cursor.execute(query)
+        result = cursor.fetchall()
+    except Error as e:
+        print(f"Tekkis viga: {e}")
+    return result
+
+def execute_insert_query(connection, data):
+    query = "INSERT INTO Users(Name, LastName, Born) VALUES(?, ?, ?)"
+    cursor = connection.cursor()
+    cursor.execute(query, data)
+    connection.commit()
+
+createUsersTable = """CREATE TABLE IF NOT EXISTS Users(
+ID INTEGER PRIMARY KEY AUTOINCREMENT,
+Name TEXT NOT NULL,
+LastName TEXT NOT NULL,
+Gender TEXT NOT NULL,
+Born DATE NOT NULL,
+BirthCountry TEXT NOT NULL,
+PassportCountry TEXT NOT NULL,
+GenderId INTEGER,
+FOREIGN KEY (GenderId) REFERENCES gender (Id))"""
+
+insertUsers = """INSERT INTO Users(Name, LastName, Gender, Born, BirthCountry, PassportCountry) VALUES
+("Vladislav", "Kudriashev", "mees", "2007-02-25", "Russia", "Estonia"),
+("Lev", "Egorov", "mees", "2007-06-28", "Estonia", "Estonia"),
+("Timur", "Baširov", "mees", "2005-06-10", "Estonia", "Estonia"),
+("David", "Myrseth", "mees", "2005-11-20", "Norra", "Estonia"),
+("Erik", "Gerega", "mees", "2007-09-17", "Estonia", "Estonia")"""
+
+insertGender = """INSERT INTO gender(Nimetus) VALUES('mees'),('naine')"""
+
+selectUsers = "SELECT * FROM Users"
+
+createGenderTable = """CREATE TABLE IF NOT EXISTS gender(
+ID INTEGER PRIMARY KEY AUTOINCREMENT,
+Nimetus TEXT NOT NULL)"""
+
+filename = path.abspath(__file__)
+dbDirectory = filename.rstrip('Töö andmebaasiga.py')
+dbPath = path.join(dbDirectory, "data.db")
+connection = createConnection(dbPath)
+
+executeQuery(connection, createGenderTable)
+executeQuery(connection, insertGender)
+executeQuery(connection, createUsersTable)
+executeQuery(connection, insertUsers)
+
+insert_user = (input("Eesnimi:"), input("Perenimi:"), input("Vanus:"))
+execute_insert_query(connection, insert_user)
+
+users = readQuery(connection, selectUsers)
+print("Kautajate tabel:")
+for user in users:
+    print(user)
+
+genders=execute_insert_query(connection, select_users_gender)
+print("Kautajate tabel 2:")
+for gender in genders:
+    print(gender)
